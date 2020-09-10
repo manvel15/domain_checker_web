@@ -1,9 +1,10 @@
- 
 const path = require('path');
 const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const ROOT = path.resolve( __dirname, 'src' );
 const DESTINATION = path.resolve( __dirname, 'dist' );
+const PROD = process.env.NODE_ENV == 'production';
 
 module.exports = {
     context: ROOT,
@@ -13,7 +14,7 @@ module.exports = {
     },
     
     output: {
-        filename: '[name].bundle.js',
+        filename: PROD ? 'js/[name].[hash].min.js' : 'js/[name].js',
         path: DESTINATION
     },
 
@@ -53,6 +54,13 @@ module.exports = {
         ]
     },
 
-    devtool: 'cheap-module-source-map',
+    plugins: [
+	    new HtmlWebpackPlugin({
+	      template: 'index.html'
+	    })
+    ],
+
+    devtool: PROD ? 'none' : 'cheap-module-source-map',
     devServer: {}
 };
+
