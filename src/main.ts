@@ -1,7 +1,8 @@
 import {API_URL} from './helpers/constants';
+import * as workerPath from 'file-loader?name=[name].js!./helpers/upload-worker';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const data: FormData = new FormData();
+
   const uploadBtn: HTMLButtonElement = <HTMLButtonElement>document.getElementById('upload');
   const fileInput: HTMLInputElement = <HTMLInputElement>document.getElementById('file');
   const progressElement: HTMLParagraphElement = <HTMLParagraphElement>document.getElementById('progress');
@@ -9,13 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
   uploadBtn.addEventListener('click', () => {
     if (fileInput.files.length) {
       const file: File = fileInput.files[0];
-      data.append('domain_list', file);
-      const worker = new Worker('helpers/upload-worker.ts');
-      // uploadFile(data);
-      console.log(API_URL);
+      const worker = new Worker('./src/helpers/' + (<any>workerPath).default);
+      worker.postMessage({file, API_URL});
+      worker.onmessage = function(event){
+        progressElement.innerText = `uploaded ${event.data.toFixed(0)} %`;
+      };
+      console.log(worker);
     }
   });
-
-
 });
 
